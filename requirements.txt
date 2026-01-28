@@ -1,0 +1,7 @@
+uvicorn
+fastapi
+dotenv
+sqlalchemy
+psycopg2
+user-agents
+GitPython

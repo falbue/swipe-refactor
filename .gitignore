@@ -1,2 +1,12 @@
+.env
+__pycache__
+*.pyc
+instance
+.env.local
 *.db
-__pycache__/
+*.log
+alembic.ini
+data/
+alembic/versions/*
+alembic/README
+alembic/script.py.mako

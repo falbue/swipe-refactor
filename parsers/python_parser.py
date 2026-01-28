@@ -76,9 +76,6 @@ def extract_python_entities(file_path: str) -> List[Dict]:
                 "kind": kind,
                 "full_name": full_name,
                 "simple_name": name,
-                "start_line": node.lineno,
-                "end_line": end_line,
-                "raw_code": raw_code,
                 "ast_hash": ast_hash,
             }
         )
