@@ -2,6 +2,6 @@ uvicorn
 fastapi
 dotenv
 sqlalchemy
-psycopg2
+psycopg2-binary
 user-agents
 GitPython
