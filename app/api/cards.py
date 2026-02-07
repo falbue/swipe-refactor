@@ -13,7 +13,7 @@ router = APIRouter(prefix="/cards", tags=["cards"])
 def get_cards(db: Session = Depends(get_db)):
     cards = db.exec(select(Card)).all()
     if not cards:
-        http_exception = HTTPException(status_code=404, detail="Карточки не найдены")
+        http_exception = HTTPException(status_code=400, detail="Карточки не найдены")
         raise http_exception
     return cards
 
