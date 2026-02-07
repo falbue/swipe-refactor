@@ -4,7 +4,7 @@ from typing import List, Dict
 
 
 def normalize_python_ast(node: ast.AST) -> str:
-    """Normalize AST by replacing identifiers and literals."""
+    """Нормализует AST, заменяя имена переменных и литералы на обобщённые токены"""
 
     class Normalizer(ast.NodeTransformer):
         def __init__(self):
@@ -35,7 +35,6 @@ def extract_python_entities(file_path: str) -> List[Dict]:
         source = f.read()
     try:
         tree = ast.parse(source)
-        lines = source.splitlines(keepends=True)
     except SyntaxError:
         return []
 
@@ -65,9 +64,6 @@ def extract_python_entities(file_path: str) -> List[Dict]:
             return
 
         # Сохраняем сущность
-        start_line = node.lineno - 1
-        end_line = node.end_lineno
-        raw_code = "".join(lines[start_line:end_line])
         normalized = normalize_python_ast(node)
         ast_hash = hashlib.sha256(normalized.encode("utf-8")).digest()
 

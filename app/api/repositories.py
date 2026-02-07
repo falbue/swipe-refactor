@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from db.session import get_db
 from schemas.repository import RepositoryCreate, RepositoryResponse
 from models import Repository, RepositoryStatus
 import git
-from core import config
+from core.config import config
+from core.parsers import scanner
 
 
 router = APIRouter()
@@ -23,9 +24,14 @@ def clone_repository(repo: RepositoryCreate, db: Session = Depends(get_db)):
     ).first()
 
     if existing_repo:
-        git.Repo.pull(existing_repo.repo_full_name)
+        repo_instance = git.Repo(config.TEMP_REPO_PATH + f"/{owner}/{repo_name}")
+        repo_instance.remotes.origin.pull()
+        scanner.scan_repo(
+            repo_path=config.TEMP_REPO_PATH + f"/{owner}/{repo_name}",
+            repository_id=existing_repo.id,
+        )
         return RepositoryResponse(
-            message="Репозиторий уже существует, выполнено обновление"
+            message=f"Репозиторий уже существует, выполнено обновление {existing_repo.id}"
         )
 
     new_repo = Repository(
@@ -42,9 +48,15 @@ def clone_repository(repo: RepositoryCreate, db: Session = Depends(get_db)):
 
     try:
         git.Repo.clone_from(repo_url, config.TEMP_REPO_PATH + f"/{owner}/{repo_name}")
-    except Exception as e:
+    except Exception:
         db.delete(new_repo)
         db.commit()
-        return RepositoryResponse(message=f"Репозиторий не найден: {str(e)}")
-
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Репозиторий не найден",
+        )
+    scanner.scan_repo(
+        repo_path=config.TEMP_REPO_PATH + f"/{owner}/{repo_name}",
+        repository_id=new_repo.id,
+    )
     return RepositoryResponse(message="Клонирование успешно выполнено")
