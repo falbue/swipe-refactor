@@ -1,8 +1,10 @@
 from uuid import UUID, uuid4
-from sqlmodel import SQLModel, Field, Relationship, text
+from sqlmodel import SQLModel, Field, text
 from typing import Optional
 from datetime import datetime, timezone
 from enum import Enum as PyEnum
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import BYTEA
 
 
 def utcnow():
@@ -62,7 +64,7 @@ class Card(SQLModel, table=True):
     file_path: str = Field(nullable=False)
     kind: str = Field(nullable=False)
     full_name: str = Field(nullable=False)
-    ast_hash: bytes = Field(nullable=True)  # BLOB → bytes
+    ast_hash: bytes = Field(default=None, sa_column=Column(BYTEA, nullable=True))
     error_message: str = Field(nullable=True)
     severity: CardSeverity = Field(nullable=False)
     status: CardStatus = Field(nullable=False)
@@ -72,7 +74,7 @@ class Card(SQLModel, table=True):
         default_factory=utcnow,
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
     )
-    updated_at: datetime = Field(
+    update_at: datetime = Field(
         default_factory=utcnow,
         sa_column_kwargs={
             "server_default": text("CURRENT_TIMESTAMP"),
@@ -82,7 +84,7 @@ class Card(SQLModel, table=True):
 
 
 class CardLike(SQLModel, table=True):
-    __tablename__ = "card_like"
+    __tablename__ = "card_like"  # pyright: ignore[reportAssignmentType]
 
     id: int = Field(default=None, primary_key=True)
     card_id: UUID = Field(foreign_key="card.id", nullable=False)
@@ -94,7 +96,7 @@ class CardLike(SQLModel, table=True):
 
 
 class RefreshToken(SQLModel, table=True):
-    __tablename__ = "refresh_token"
+    __tablename__ = "refresh_token"  # type: ignore
 
     token: str = Field(unique=True, max_length=255, index=True, primary_key=True)
     user_id: int = Field(foreign_key="user.id", index=True)

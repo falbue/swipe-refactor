@@ -10,3 +10,4 @@ data/
 alembic/versions/*
 alembic/README
 alembic/script.py.mako
+repositories/

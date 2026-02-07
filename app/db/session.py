@@ -1,6 +1,6 @@
 from sqlmodel import create_engine, Session
 from sqlalchemy.engine import URL
-from core import config
+from core.config import config
 
 # Формируем URL как раньше
 db_url = URL.create(
