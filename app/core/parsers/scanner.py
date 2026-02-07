@@ -11,12 +11,55 @@ from core.config import config
 from db.session import get_db
 from models.cards import Card, CardSeverity, CardStatus
 from models.repositories import Repository
-from .python_parser import extract_python_entities
+from .python_parser import extract_python_entities, find_python_entity_block
 
 # Поддерживаемые расширения
 EXTENSIONS = {
     ".py": extract_python_entities,
 }
+
+
+def get_code(db: Session, card_id: UUID):
+    # Шаг 1: Получаем карточку по ID
+    card = db.get(Card, card_id)
+    if not card:
+        return f"Карточка с id={card_id} не найдена"
+
+    # Шаг 2: Получаем репозиторий
+    repo = db.exec(
+        select(Repository).where(Repository.id == card.repository_id)
+    ).first()
+    if not repo:
+        return f"Репозиторий с id={card.repository_id} не найден"
+
+    # Шаг 3: Формируем путь к файлу
+    repo_root = os.path.abspath(
+        os.path.join(config.TEMP_REPO_PATH, repo.repo_full_name)
+    )
+    requested_path = os.path.abspath(os.path.join(repo_root, card.file_path))
+
+    # Защита от path traversal
+    if not requested_path.startswith(repo_root + os.sep):
+        return "Некорректный путь к файлу"
+
+    if not os.path.isfile(requested_path):
+        return "Файл не найден"
+
+    if Path(requested_path).suffix.lower() != ".py":
+        return "Поддерживаются только .py файлы"
+
+    # Шаг 4: Извлекаем блок кода
+    try:
+        block = find_python_entity_block(requested_path, card.kind, card.full_name)
+    except ValueError as exc:
+        return str(exc)
+
+    # Шаг 5: Возвращаем ответ
+    return {
+        "start_line": block["start_line"],
+        "end_line": block["end_line"],
+        "code": block["code"],
+    }
 
 
 def _resolve_repository(

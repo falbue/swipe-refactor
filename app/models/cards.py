@@ -63,10 +63,7 @@ class CardCodeRequest(SQLModel):
     full_name: str
 
 
-class CardCodeResponse(SQLModel):
-    file_path: str
-    kind: str
-    full_name: str
+class CardCodeResponse(CardBase):
     start_line: int
     end_line: int
     code: str
