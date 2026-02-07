@@ -1,4 +1,4 @@
-name: Развертывание проекта
+name: Сборка проекта
 
 on:
   push:
@@ -32,6 +32,9 @@ jobs:
             else
               echo "release=false" >> $GITHUB_OUTPUT
             fi
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "release=false" >> $GITHUB_OUTPUT
           fi
   build:
     needs: check-tags
@@ -56,7 +59,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ needs.check-tags.outputs.tag_name }}
+            ghcr.io/${{ github.repository }}:${{ needs.check-tags.outputs.tag }}
             ghcr.io/${{ github.repository }}:latest
 
   create-release:
