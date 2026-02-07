@@ -9,7 +9,8 @@ from sqlmodel import Session, select
 
 from core.config import config
 from db.session import get_db
-from models import Card, CardSeverity, CardStatus, Repository
+from models.cards import Card, CardSeverity, CardStatus
+from models.repositories import Repository
 from .python_parser import extract_python_entities
 
 # Поддерживаемые расширения

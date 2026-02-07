@@ -1,14 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from db.session import get_db
-from schemas.repository import RepositoryCreate, RepositoryResponse
-from models import Repository, RepositoryStatus
+from models.repositories import (
+    Repository,
+    RepositoryStatus,
+    RepositoryCreate,
+    RepositoryResponse,
+)
 import git
 from core.config import config
 from core.parsers import scanner
 
 
-router = APIRouter()
+router = APIRouter(prefix="/repositories", tags=["repositories"])
+
+
+@router.get("/", status_code=status.HTTP_200_OK)
+def list_repositories(db: Session = Depends(get_db)):
+    repositories = db.exec(select(Repository)).all()
+    return repositories
 
 
 @router.post(
