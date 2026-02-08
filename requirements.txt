@@ -1,9 +1,12 @@
 uvicorn
 fastapi
-dotenv
+python-dotenv
 sqlalchemy
 psycopg2-binary
 user-agents
 GitPython
 gunicorn
 sqlmodel
+pydantic
+pydantic_settings
+python_jose
