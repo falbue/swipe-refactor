@@ -6,3 +6,4 @@ psycopg2-binary
 user-agents
 GitPython
 gunicorn
+sqlmodel
