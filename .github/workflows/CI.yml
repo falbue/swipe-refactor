@@ -33,11 +33,12 @@ jobs:
               echo "release=false" >> $GITHUB_OUTPUT
             fi
           else
-            echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "tag=false" >> $GITHUB_OUTPUT
             echo "release=false" >> $GITHUB_OUTPUT
           fi
   build:
     needs: check-tags
+    if: needs.check-tags.outputs.tag != 'false'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -77,3 +78,29 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs: [check-tags, build]
+    if: needs.check-tags.outputs.tag != 'false' && success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Отправка webhook на сервер деплоя
+        env:
+          WEBHOOK_URL: https://deploy.falbue.ru/webhook
+          WEBHOOK_SECRET: ${{ secrets.DEPLOY_WEBHOOK_SECRET }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ needs.check-tags.outputs.tag }}
+        run: |
+          # Генерация payload
+          PAYLOAD=$(jq -nc --arg repo "$REPO" --arg tag "$TAG" '{"repo": $repo, "tag": $tag}')
+          
+          # Подпись HMAC-SHA256
+          SIGNATURE="sha256=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')"
+          
+          # Отправка запроса
+          curl -fsS -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: $SIGNATURE" \
+            -d "$PAYLOAD" \
+            "$WEBHOOK_URL"
+          echo "✅ Webhook успешно отправлен на $WEBHOOK_URL"
