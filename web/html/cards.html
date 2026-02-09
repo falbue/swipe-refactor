@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Swipe</title>
+    <link rel="stylesheet" href="../../../cdn/css/main.css">
+
+    <script src="../js/cards.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css" />
+
+</head>
+
+<body>
+    <main>
+        <section class="hero">
+            <div id="card_code">
+                <!-- Код карточки будет загружен сюда -->
+            </div>
+        </section>
+    </main>
+</body>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const cardId = window.location.hash.substring(1); // убираем '#'
+        if (cardId) {
+            // Здесь загрузи/покажи карточку с этим ID
+            console.log('Показываем карточку:', cardId);
+            // Например, подгрузи данные из JSON или покажи скрытый блок
+        }
+    });
+</script>
+
+</html>

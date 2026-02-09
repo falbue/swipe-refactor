@@ -5,12 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Swipe</title>
+    <link rel="stylesheet" href="../../../cdn/css/main.css">
+
+    <script src="../js/Repos.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css" />
+
 </head>
 
 <body>
     <main>
-        <input type="text" id="cloneRepo">
-        <div id="listRepos"></div>
+        <section class="hero">
+            <input class="w100" type="text" placeholder="Введите название репозитория: owner/repo">
+            <div class="card-list w100" id="listRepos">
+                <!-- Карточки будут добавляться сюда -->
+            </div>
+        </section>
     </main>
 </body>
 
