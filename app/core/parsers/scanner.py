@@ -23,14 +23,14 @@ def get_code(db: Session, card_id: UUID):
     # Шаг 1: Получаем карточку по ID
     card = db.get(Card, card_id)
     if not card:
-        return f"Карточка с id={card_id} не найдена"
+        raise ValueError(f"Карточка с id={card_id} не найдена")
 
     # Шаг 2: Получаем репозиторий
     repo = db.exec(
         select(Repository).where(Repository.id == card.repository_id)
     ).first()
     if not repo:
-        return f"Репозиторий с id={card.repository_id} не найден"
+        raise ValueError(f"Репозиторий с id={card.repository_id} не найден")
 
     # Шаг 3: Формируем путь к файлу
     repo_root = os.path.abspath(
@@ -40,19 +40,19 @@ def get_code(db: Session, card_id: UUID):
 
     # Защита от path traversal
     if not requested_path.startswith(repo_root + os.sep):
-        return "Некорректный путь к файлу"
+        raise ValueError("Некорректный путь к файлу")
 
     if not os.path.isfile(requested_path):
-        return "Файл не найден"
+        raise ValueError("Файл не найден")
 
     if Path(requested_path).suffix.lower() != ".py":
-        return "Поддерживаются только .py файлы"
+        raise ValueError("Поддерживаются только .py файлы")
 
     # Шаг 4: Извлекаем блок кода
     try:
         block = find_python_entity_block(requested_path, card.kind, card.full_name)
     except ValueError as exc:
-        return str(exc)
+        raise ValueError(str(exc))
 
     # Шаг 5: Возвращаем ответ
     return {
