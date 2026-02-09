@@ -84,23 +84,42 @@ jobs:
     if: needs.check-tags.outputs.tag != 'false' && success()
     runs-on: ubuntu-latest
     steps:
+      - name: Скачивание репозитория
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check-tags.outputs.tag }}
+
+      - name: Чтение docker-compose.yml
+        id: read_compose
+        run: |
+          if [ -f docker-compose.yml ]; then
+            COMPOSE_CONTENT=$(base64 -w 0 docker-compose.yml)
+            echo "compose_content=$COMPOSE_CONTENT" >> $GITHUB_OUTPUT
+          else
+            echo "❌ docker-compose.yml не найден. Остановка процесса." >&2
+            exit 1
+          fi
+
       - name: Отправка webhook на сервер деплоя
         env:
           WEBHOOK_URL: https://deploy.falbue.ru/webhook
           WEBHOOK_SECRET: ${{ secrets.DEPLOY_WEBHOOK_SECRET }}
           REPO: ${{ github.repository }}
           TAG: ${{ needs.check-tags.outputs.tag }}
+          COMPOSE_B64: ${{ steps.read_compose.outputs.compose_content }}
         run: |
-          # Генерация payload
-          PAYLOAD=$(jq -nc --arg repo "$REPO" --arg tag "$TAG" '{"repo": $repo, "tag": $tag}')
-          
-          # Подпись HMAC-SHA256
+          PAYLOAD=$(jq -nc \
+            --arg repo "$REPO" \
+            --arg tag "$TAG" \
+            --arg compose_b64 "$COMPOSE_B64" \
+            '{"repo": $repo, "tag": $tag, "compose_b64": $compose_b64}'
+          )
+
           SIGNATURE="sha256=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')"
-          
-          # Отправка запроса
+
           curl -fsS -X POST \
             -H "Content-Type: application/json" \
             -H "X-Hub-Signature-256: $SIGNATURE" \
             -d "$PAYLOAD" \
             "$WEBHOOK_URL"
-          echo "✅ Webhook успешно отправлен на $WEBHOOK_URL"
+          echo "✅ Webhook успешно отправлен"
