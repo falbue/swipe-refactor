@@ -25,6 +25,10 @@ class Repository(SQLModel, table=True):
     commit_name: str = Field(nullable=False)
     status: RepositoryStatus = Field(nullable=False)
 
+    updated_at: datetime = Field(
+        default_factory=utcnow,
+        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
+    )
     created_at: datetime = Field(
         default_factory=utcnow,
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},

@@ -39,6 +39,14 @@ class ConfigSettings(BaseSettings):
         default="repositories",
         description="Папка для временных репозиториев при анализе",
     )
+    LOG_PATH: str = Field(
+        default="logs",
+        description="Папка для логов приложения",
+    )
+    LOG_DEBUG: bool = Field(
+        default=True,
+        description="Включить режим отладки для логов (true/false)",
+    )
 
 
 IN_DOCKER = os.getenv("IN_DOCKER", "").lower() in ("1", "true", "yes")

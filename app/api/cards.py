@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 from core.parsers import scanner
 from models.cards import Card, CardCodeResponse, CardResponse
 from db.session import get_db
@@ -30,3 +30,17 @@ def get_card(card_id: UUID, db: Session = Depends(get_db)):
     code = scanner.get_code(db, card_id)
     response_data = {**card.dict(), **code}  # type: ignore
     return CardCodeResponse(**response_data)
+
+
+@router.get("/repo/{repo_id}/random", response_model=CardResponse)
+def get_random_card_from_repo(repo_id: UUID, db: Session = Depends(get_db)):
+    card = db.exec(
+        select(Card).where(Card.repository_id == repo_id).order_by(func.random())
+    ).first()
+    if not card:
+        http_exception = HTTPException(
+            status_code=404,
+            detail=f"Карточки для репозитория {repo_id} не найдены",
+        )
+        raise http_exception
+    return card
