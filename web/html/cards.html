@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Swipe</title>
-    <link rel="stylesheet" href="../../../cdn/css/main.css">
+    <!-- <link rel="stylesheet" href="../../../cdn/css/main.css"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/falbue/cdn@0.1.0/css/main.css">
 
     <script src="../js/cards.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css" />
@@ -24,8 +25,17 @@
 <body>
     <main>
         <section class="hero">
-            <div id="card_code">
-                <!-- Код карточки будет загружен сюда -->
+            <div class="card code no-hover w100">
+                <header class="between">
+                    <div class="between">
+                        <h3 class="iconoir-code icon"></h3>
+                        <h5 id="file-name"></h5>
+                    </div>
+                    <button class="iconoir-refresh-double" onclick="fetchCards()"></button>
+                </header>
+                <main id="card-code" class="code-block">
+                    <!-- Код карточки будет загружен сюда -->
+                </main>
             </div>
         </section>
     </main>

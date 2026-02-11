@@ -19,7 +19,7 @@ function fetchRepos() {
                             <h4>${repo_name}</h4>
                             <h5>${owner}</h5>
                         </div>
-                        <a href="cards.html#${repo.id}" class="button"><i class="iconoir-open-new-window"></i></a>
+                        <a href="html/cards.html#${repo.id}" class="button"><i class="iconoir-open-new-window"></i></a>
                     </main>
                 `;
                 listRepos.appendChild(card);

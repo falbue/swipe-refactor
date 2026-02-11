@@ -7,7 +7,9 @@ function fetchCards() {
     fetch(`${URL}repo/${repoId}/random`)
         .then(response => response.json())
         .then(data => {
-            const card_code = document.getElementById("card_code");
+            const fileNameEl = document.getElementById("file-name");
+            fileNameEl.textContent = `${data.file_path}`;
+            const card_code = document.getElementById("card-code");
             const code = data.code;
 
             const pre = document.createElement("pre");
@@ -18,9 +20,8 @@ function fetchCards() {
             card_code.innerHTML = ""; // очистить старое
             card_code.appendChild(pre);
 
-            // Теперь запустить подсветку!
             if (typeof hljs !== 'undefined') {
-                hljs.highlightElement(codeEl); // или hljs.highlightAll()
+                hljs.highlightElement(codeEl);
             }
         })
         .catch(err => console.error("Ошибка загрузки карточки:", err));
