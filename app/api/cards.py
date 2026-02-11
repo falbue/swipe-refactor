@@ -28,11 +28,11 @@ def get_card(card_id: UUID, db: Session = Depends(get_db)):
         )
         raise http_exception
     code = scanner.get_code(db, card_id)
-    response_data = {**card.dict(), **code}  # type: ignore
+    response_data = {**card.dict(), **code}
     return CardCodeResponse(**response_data)
 
 
-@router.get("/repo/{repo_id}/random", response_model=CardResponse)
+@router.get("/repo/{repo_id}/random", response_model=CardCodeResponse)
 def get_random_card_from_repo(repo_id: UUID, db: Session = Depends(get_db)):
     card = db.exec(
         select(Card).where(Card.repository_id == repo_id).order_by(func.random())
@@ -43,4 +43,6 @@ def get_random_card_from_repo(repo_id: UUID, db: Session = Depends(get_db)):
             detail=f"Карточки для репозитория {repo_id} не найдены",
         )
         raise http_exception
-    return card
+    code = scanner.get_code(db, card.id)
+    response_data = {**card.dict(), **code}
+    return CardCodeResponse(**response_data)
