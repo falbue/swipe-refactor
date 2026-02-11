@@ -103,9 +103,14 @@ def clone_repository(repo: RepositoryCreate, db: Session = Depends(get_db)):
             )
         else:
             save_repository_to_db(repo_full_name=repo.repo_full_name, db=db)
+            update_repo_data(existing_repo_db, repo_path, db)
     else:
         git.Repo.clone_from(repo_url, repo_path)
         logger.info(f"Репозиторий {repo.repo_full_name} успешно клонирован")
         if existing_repo_db:
             update_repo_data(existing_repo_db, repo_path, db)
+        else:
+            save_repository_to_db(repo_full_name=repo.repo_full_name, db=db)
+            update_repo_data(existing_repo_db, repo_path, db)
+
     return RepositoryResponse(message="Клонирование успешно выполнено")
