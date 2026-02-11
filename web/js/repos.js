@@ -16,8 +16,14 @@ function fetchRepos() {
                 card.innerHTML = `
                     <main class="between">
                         <div>
-                            <h4>${repo_name}</h4>
-                            <h5>${owner}</h5>
+                            <div class="align-center">
+                                <h3 class="iconoir-repository icon"></h3>
+                                <h4>${repo_name}</h4>
+                            </div>
+                            <div class="align-center">
+                                <h3 class="iconoir-user icon"></h3>
+                                <h5>${owner}</h5>
+                            </div>
                         </div>
                         <a href="html/cards.html#${repo.id}" class="button"><i class="iconoir-open-new-window"></i></a>
                     </main>
