@@ -24,13 +24,15 @@ jobs:
       - name: Проверка репозитория
         uses: actions/checkout@v4
 
-      - name: Настройка Pages
+      - name: Настройка GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true  # Автоматически создаёт сайт Pages, если он ещё не существует
 
-      - name: Загрузка артефакта
+      - name: Загрузка артефакта для публикации
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./web
+          path: ./web  # Должен содержать index.html в корне и, например, папку js/
 
       - name: Публикация на GitHub Pages
         id: deployment
