@@ -35,7 +35,7 @@ def save_repository_to_db(
 ) -> Repository | None:
     try:
         new_repo = Repository(
-            repo_full_name=repo.repo_full_name,
+            repo_full_name=repo_full_name,
             branch_name=branch,
             commit_name=commit,
             status=status,
@@ -91,10 +91,6 @@ def clone_repository(repo: RepositoryCreate, db: Session = Depends(get_db)):
     if os.path.isdir(repo_path):
         repo_instance = git.Repo(repo_path)
         repo_instance.remotes.origin.pull()
-        scanner.scan_repo(
-            repo_path=repo_path,
-            repository_id=existing_repo_db.id,
-        )
 
         if existing_repo_db:
             update_repo_data(existing_repo_db, repo_path, db)
@@ -102,15 +98,15 @@ def clone_repository(repo: RepositoryCreate, db: Session = Depends(get_db)):
                 message=f"Данные репозитория {repo.repo_full_name} обновлены в БД"
             )
         else:
-            save_repository_to_db(repo_full_name=repo.repo_full_name, db=db)
-            update_repo_data(existing_repo_db, repo_path, db)
+            new_repo = save_repository_to_db(repo_full_name=repo.repo_full_name, db=db)
+            update_repo_data(new_repo, repo_path, db)
     else:
         git.Repo.clone_from(repo_url, repo_path)
         logger.info(f"Репозиторий {repo.repo_full_name} успешно клонирован")
         if existing_repo_db:
             update_repo_data(existing_repo_db, repo_path, db)
         else:
-            save_repository_to_db(repo_full_name=repo.repo_full_name, db=db)
-            update_repo_data(existing_repo_db, repo_path, db)
+            new_repo = save_repository_to_db(repo_full_name=repo.repo_full_name, db=db)
+            update_repo_data(new_repo, repo_path, db)
 
     return RepositoryResponse(message="Клонирование успешно выполнено")
