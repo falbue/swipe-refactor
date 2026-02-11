@@ -3,15 +3,13 @@ let ROUTE = "/cards/"
 let URL = HOST + ROUTE
 
 function fetchCards() {
-    const cardId = "99c5b859-f8b0-4d24-8e9c-4e2f73c86819";
-    fetch(URL + cardId)
+    const repoId = window.location.hash.substring(1);;
+    fetch(`${URL}repo/${repoId}/random`)
         .then(response => response.json())
         .then(data => {
             const card_code = document.getElementById("card_code");
-            const code = data.code; // Это строка с \n и экранированными кавычками — нормально!
+            const code = data.code;
 
-            // ВАЖНО: НЕ используйте innerHTML напрямую с сырым кодом!
-            // Лучше создать элемент и вставить текст, чтобы избежать XSS и проблем с экранированием.
             const pre = document.createElement("pre");
             const codeEl = document.createElement("code");
             codeEl.className = "language-python hljs";
