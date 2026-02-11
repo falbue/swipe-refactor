@@ -10,3 +10,4 @@ sqlmodel
 pydantic
 pydantic_settings
 python_jose
+requests
