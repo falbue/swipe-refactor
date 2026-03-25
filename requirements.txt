@@ -11,4 +11,3 @@ pydantic
 pydantic_settings
 python_jose
 requests
-alembic
