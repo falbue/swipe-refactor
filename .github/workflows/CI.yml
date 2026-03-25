@@ -84,23 +84,24 @@ jobs:
     if: needs.check-tags.outputs.tag != 'false' && success()
     runs-on: ubuntu-latest
     steps:
-      - name: Отправка webhook на сервер деплоя
+      - name: Обновление деплоя через Deploy API
         env:
-          WEBHOOK_URL: https://deploy.falbue.ru/webhook
-          WEBHOOK_SECRET: ${{ secrets.DEPLOY_WEBHOOK_SECRET }}
-          REPO: ${{ github.repository }}
+          DEPLOY_API_URL: https://deploy.falbue.ru
+          DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+          DEPLOYMENT_ID: ${{ secrets.DEPLOYMENT_ID }}
           TAG: ${{ needs.check-tags.outputs.tag }}
         run: |
-          # Генерация payload
-          PAYLOAD=$(jq -nc --arg repo "$REPO" --arg tag "$TAG" '{"repo": $repo, "tag": $tag}')
-          
-          # Подпись HMAC-SHA256
-          SIGNATURE="sha256=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')"
-          
-          # Отправка запроса
-          curl -fsS -X POST \
+          if [ -z "$DEPLOY_API_URL" ] || [ -z "$DEPLOY_API_KEY" ] || [ -z "$DEPLOYMENT_ID" ]; then
+            echo "Не заданы DEPLOY_API_URL, DEPLOY_API_KEY или DEPLOYMENT_ID"
+            exit 1
+          fi
+
+          PAYLOAD=$(jq -nc --arg tag "$TAG" '{"tag": $tag}')
+
+          curl --fail-with-body -sS -X POST \
             -H "Content-Type: application/json" \
-            -H "X-Hub-Signature-256: $SIGNATURE" \
+            -H "X-API-Key: $DEPLOY_API_KEY" \
             -d "$PAYLOAD" \
-            "$WEBHOOK_URL"
-          echo "✅ Webhook успешно отправлен на $WEBHOOK_URL"
+            "$DEPLOY_API_URL/deployments/$DEPLOYMENT_ID/redeploy"
+
+          echo "✅ Deploy API: redeploy выполнен для deployment_id=$DEPLOYMENT_ID, tag=$TAG"
